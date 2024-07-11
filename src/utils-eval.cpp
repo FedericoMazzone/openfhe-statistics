@@ -25,6 +25,27 @@ usint depth2degree(
 }
 
 
+Ciphertext<DCRTPoly> equal(
+    const Ciphertext<DCRTPoly> &c1,
+    const Ciphertext<DCRTPoly> &c2,
+    double a,
+    double b,
+    uint32_t degree,
+    double error
+)
+{
+    return c1->GetCryptoContext()->EvalChebyshevFunction(
+        [error](double x) -> double { 
+            if      (x > error)   return 0;
+            else if (x >= -error) return 1.0;
+            else                  return 0;
+        },
+        c1 - c2,
+        a, b, degree
+    );
+}
+
+
 Ciphertext<DCRTPoly> compare(
     const Ciphertext<DCRTPoly> &c1,
     const Ciphertext<DCRTPoly> &c2,

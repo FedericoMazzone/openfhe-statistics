@@ -1,4 +1,4 @@
-#include "minimum.h"
+#include "median.h"
 #include "ranking.h"
 #include "utils-basics.h"
 #include "utils-eval.h"
@@ -8,7 +8,7 @@
 #include <omp.h>
 
 
-Ciphertext<DCRTPoly> min(
+Ciphertext<DCRTPoly> median(
     Ciphertext<DCRTPoly> c,
     const size_t vectorLength,
     double leftBoundC,
@@ -17,17 +17,17 @@ Ciphertext<DCRTPoly> min(
     uint32_t degreeI
 )
 {
-    c = rank(
+    c = rankWithCorrection(
         c,
         vectorLength,
         leftBoundC,
         rightBoundC,
-        degreeC,
-        true
+        degreeC
     );
     c = indicator(
         c,
-        0.5, 1.5,
+        (vectorLength % 2 == 0) ? 0.5 * vectorLength - 0.5 : 0.5 * vectorLength,
+        (vectorLength % 2 == 0) ? 0.5 * vectorLength + 1.5 : 0.5 * vectorLength + 1.0,
         0.5, vectorLength + 0.5,
         degreeI
     );
@@ -36,7 +36,7 @@ Ciphertext<DCRTPoly> min(
 }
 
 
-Ciphertext<DCRTPoly> min(
+Ciphertext<DCRTPoly> median(
     const std::vector<Ciphertext<DCRTPoly>> &c,
     const size_t subVectorLength,
     double leftBoundC,
@@ -59,14 +59,12 @@ Ciphertext<DCRTPoly> min(
 
     start = std::chrono::high_resolution_clock::now();
 
-    ranking = rank(
+    ranking = rankWithCorrection(
         c,
         subVectorLength,
         leftBoundC,
         rightBoundC,
-        degreeC,
-        true,
-        false
+        degreeC
     );
 
     end = std::chrono::high_resolution_clock::now();
@@ -117,7 +115,8 @@ Ciphertext<DCRTPoly> min(
 
     m = indicator(
         s,
-        0.5, 1.5,
+        (vectorLength % 2 == 0) ? 0.5 * vectorLength - 0.5 : 0.5 * vectorLength,
+        (vectorLength % 2 == 0) ? 0.5 * vectorLength + 1.5 : 0.5 * vectorLength + 1.0,
         -0.01 * vectorLength, 1.01 * vectorLength,
         degreeI
     );
@@ -132,61 +131,77 @@ Ciphertext<DCRTPoly> min(
 }
 
 
-double min(
-    const std::vector<double> &vec
+double median(
+    std::vector<double> vec
 )
 {
-    auto minIter = std::min_element(vec.begin(), vec.end());
-    return *minIter;
+    std::sort(vec.begin(), vec.end());
+    size_t size = vec.size();
+    if (size % 2 == 0) 
+        return (vec[size / 2 - 1] + vec[size / 2]) / 2.0;
+    else
+        return vec[size / 2];
 }
 
 
-size_t argmax(
-    const std::vector<double>& vec
-)
-{
-    auto maxIter = std::max_element(vec.begin(), vec.end());
-    return std::distance(vec.begin(), maxIter);
-}
-
-
-double evaluateMinValue(
+double evaluateMedianValue(
     const std::vector<double> &vec,
-    const std::vector<double> &computedMinMask
+    const std::vector<double> &computedMedianMask
 )
 {
-    assert(vec.size() == computedMinMask.size());
+    assert(vec.size() == computedMedianMask.size());
 
-    double expectedMin = min(vec);
+    double expectedMedian = median(vec);
 
-    double computedMin = 0.0;
+    double computedMedian = 0.0;
     double norm = 0.0;
     for (size_t i = 0; i < vec.size(); i++)
     {
-        computedMin += vec[i] * computedMinMask[i];
-        norm += computedMinMask[i];
+        computedMedian += vec[i] * computedMedianMask[i];
+        norm += computedMedianMask[i];
     }
-    computedMin /= norm;
+    computedMedian /= norm;
 
-    return std::abs(expectedMin - computedMin) / expectedMin;
+    return std::abs(expectedMedian - computedMedian) / expectedMedian;
 }
 
 
-double evaluateMinMask(
+double evaluateMedianMask(
     const std::vector<double> &vec,
-    const std::vector<double> &computedMinMask
+    const std::vector<double> &computedMedianMask
 )
 {
-    assert(vec.size() == computedMinMask.size());
+    assert(vec.size() == computedMedianMask.size());
 
-    double expectedMin = min(vec);
-    double computedMin = vec[argmax(computedMinMask)];
+    double expectedMedian = median(vec);
+    size_t size = vec.size();
+    size_t posMax, posMax2;
+    if (computedMedianMask[0] > computedMedianMask[1]) {posMax = 0; posMax2 = 1;}
+    else                                               {posMax = 1; posMax2 = 0;}
+    for (size_t i = 2; i < size; i++)
+        if (computedMedianMask[i] > computedMedianMask[posMax2])
+        {
+            if (computedMedianMask[i] > computedMedianMask[posMax])
+            {
+                posMax2 = posMax;
+                posMax = i;
+            }
+            else
+            {
+                posMax2 = i;
+            }
+        }
+    double computedMedian;
+    if (size % 2 == 0)
+        computedMedian = (vec[posMax] + vec[posMax2]) / 2.0;
+    else
+        computedMedian = vec[posMax];
 
-    return std::abs(expectedMin - computedMin) / expectedMin;
+    return std::abs(expectedMedian - computedMedian) / expectedMedian;
 }
 
 
-std::vector<double> testMinimum(
+std::vector<double> testMedian(
     const size_t vectorLength = 8,
     const usint compareDepth = 7,
     const usint indicatorDepth = 11
@@ -199,7 +214,7 @@ std::vector<double> testMinimum(
 
     const usint integralPrecision       = 10;
     const usint decimalPrecision        = 50;
-    const usint multiplicativeDepth     = compareDepth + indicatorDepth;
+    const usint multiplicativeDepth     = compareDepth + indicatorDepth + 3;
     const usint numSlots                = vectorLength * vectorLength;
     const bool enableBootstrap          = false;
     const usint ringDim                 = 0;
@@ -232,7 +247,7 @@ std::vector<double> testMinimum(
 
     std::cout << "Vector: " << v << std::endl;
 
-    std::cout << "Expected minimum: " << min(v) << std::endl;
+    std::cout << "Expected median: " << median(v) << std::endl;
 
     Ciphertext<DCRTPoly> vC = cryptoContext->Encrypt(
         keyPair.publicKey,
@@ -241,7 +256,7 @@ std::vector<double> testMinimum(
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Ciphertext<DCRTPoly> resultC = min(
+    Ciphertext<DCRTPoly> resultC = median(
         vC,
         vectorLength,
         -1.0, 1.0,
@@ -257,10 +272,10 @@ std::vector<double> testMinimum(
     cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
     resultP->SetLength(vectorLength);
     std::vector<double> result = resultP->GetRealPackedValue();
-    std::cout << "Minimum: " << result << std::endl;
+    std::cout << "Median: " << result << std::endl;
 
-    double errorValue = evaluateMinValue(v, result);
-    double errorMask = evaluateMinMask(v, result);
+    double errorValue = evaluateMedianValue(v, result);
+    double errorMask = evaluateMedianMask(v, result);
     std::cout << "Error value: " << errorValue << std::endl;
     std::cout << "Error mask: " << errorMask << std::endl;
 
@@ -272,7 +287,7 @@ std::vector<double> testMinimum(
 }
 
 
-std::vector<double> testMinimumMultiCtxt(
+std::vector<double> testMedianMultiCtxt(
     const size_t subVectorLength = 128,
     const size_t numCiphertext = 2,
     const usint compareDepth = 7,
@@ -288,7 +303,7 @@ std::vector<double> testMinimumMultiCtxt(
     const size_t vectorLength           = subVectorLength * numCiphertext;
     const usint integralPrecision       = 12;
     const usint decimalPrecision        = 48;
-    const usint multiplicativeDepth     = compareDepth + indicatorDepth + 2;
+    const usint multiplicativeDepth     = compareDepth + indicatorDepth + 2 + 3;
     const usint numSlots                = subVectorLength * subVectorLength;
     const bool enableBootstrap          = false;
     const usint ringDim                 = 0;
@@ -325,7 +340,7 @@ std::vector<double> testMinimumMultiCtxt(
 
     std::cout << "Vector: " << vTokens << std::endl;
 
-    std::cout << "Expected minimum: " << min(v) << std::endl;
+    std::cout << "Expected median: " << median(v) << std::endl;
 
     std::vector<Ciphertext<DCRTPoly>> vC(numCiphertext);
     for (size_t j = 0; j < numCiphertext; j++)
@@ -336,7 +351,7 @@ std::vector<double> testMinimumMultiCtxt(
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Ciphertext<DCRTPoly> resultC = min(
+    Ciphertext<DCRTPoly> resultC = median(
         vC,
         subVectorLength,
         -1.0, 1.0,
@@ -352,10 +367,10 @@ std::vector<double> testMinimumMultiCtxt(
     cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
     resultP->SetLength(vectorLength);
     std::vector<double> result = resultP->GetRealPackedValue();
-    std::cout << "Minimum: " << result << std::endl;
+    std::cout << "Median: " << result << std::endl;
 
-    double errorValue = evaluateMinValue(v, result);
-    double errorMask = evaluateMinMask(v, result);
+    double errorValue = evaluateMedianValue(v, result);
+    double errorMask = evaluateMedianMask(v, result);
     std::cout << "Error value: " << errorValue << std::endl;
     std::cout << "Error mask: " << errorMask << std::endl;
 
@@ -375,7 +390,7 @@ std::vector<double> testMinimumMultiCtxt(
 //     const size_t TEST_REPS = 10;
 
 //     std::ofstream logFile;
-//     logFile.open("log-minimum.txt");
+//     logFile.open("log-median.txt");
 
 //     logFile << "vector length vs. run time" << std::endl;
 //     usint compareDepth = 9;
@@ -386,7 +401,7 @@ std::vector<double> testMinimumMultiCtxt(
 //     {
 //         std::vector<std::vector<double>> results;
 //         for (size_t i = 0; i < TEST_REPS; i++)
-//             try { results.push_back(testMinimum(vectorLength, compareDepth, indicatorDepth)); }
+//             try { results.push_back(testMedian(vectorLength, compareDepth, indicatorDepth)); }
 //             catch (const std::exception& e) { std::cout << "Exception caught: " << e.what() << std::endl; }
 //         if (results.size() > 0)
 //         {
@@ -401,7 +416,7 @@ std::vector<double> testMinimumMultiCtxt(
 //     {
 //         std::vector<std::vector<double>> results;
 //         for (size_t i = 0; i < TEST_REPS; i++)
-//             try { results.push_back(testMinimumMultiCtxt(128, numCiphertext, compareDepth, indicatorDepth)); }
+//             try { results.push_back(testMedianMultiCtxt(128, numCiphertext, compareDepth, indicatorDepth)); }
 //             catch (const std::exception& e) { std::cout << "Exception caught: " << e.what() << std::endl; }
 //         if (results.size() > 0)
 //         {
@@ -413,25 +428,25 @@ std::vector<double> testMinimumMultiCtxt(
 //         }
 //     }
 
-//     logFile << "depths vs. run time & errors" << std::endl;
-//     size_t vectorLength = 32;
-//     logFile << "vectorLength=" << vectorLength << std::endl;
-//     for (usint compareDepth = 13; compareDepth <= 14; compareDepth++)
-//         for (usint indicatorDepth = (compareDepth == 13) ? 13 : 6; indicatorDepth <= 14; indicatorDepth++)
-//         {
-//             std::vector<std::vector<double>> results;
-//             for (size_t i = 0; i < TEST_REPS; i++)
-//                 try { results.push_back(testMinimum(vectorLength, compareDepth, indicatorDepth)); }
-//                 catch (const std::exception& e) { std::cout << "Exception caught: " << e.what() << std::endl; }
-//             if (results.size() > 0)
-//             {
-//                 std::vector<double> average = averageVectors(results);
-//                 std::cout << "************************" << std::endl;
-//                 std::cout << average << std::endl;
-//                 std::cout << "************************" << std::endl;
-//                 logFile << average << std::endl;
-//             }
-//         }
+//     // logFile << "depths vs. run time & errors" << std::endl;
+//     // size_t vectorLength = 32;
+//     // logFile << "vectorLength=" << vectorLength << std::endl;
+//     // for (usint compareDepth = 6; compareDepth <= 14; compareDepth++)
+//     //     for (usint indicatorDepth = 6; indicatorDepth <= 14; indicatorDepth++)
+//     //     {
+//     //         std::vector<std::vector<double>> results;
+//     //         for (size_t i = 0; i < TEST_REPS; i++)
+//     //             try { results.push_back(testMedian(vectorLength, compareDepth, indicatorDepth)); }
+//     //             catch (const std::exception& e) { std::cout << "Exception caught: " << e.what() << std::endl; }
+//     //         if (results.size() > 0)
+//     //         {
+//     //             std::vector<double> average = averageVectors(results);
+//     //             std::cout << "************************" << std::endl;
+//     //             std::cout << average << std::endl;
+//     //             std::cout << "************************" << std::endl;
+//     //             logFile << average << std::endl;
+//     //         }
+//     //     }
 
 //     logFile.close();
 

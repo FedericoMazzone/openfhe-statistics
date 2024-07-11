@@ -45,6 +45,17 @@ Ciphertext<Element> operator*(const std::vector<double> &a, const Ciphertext<Ele
     return b * a;
 }
 
+template <typename Element>
+Ciphertext<Element> operator*(const Ciphertext<Element> &a, const double b) {
+    CryptoContext<Element> cc = a->GetCryptoContext();
+    return cc->EvalMult(a, b);
+}
+
+template <typename Element>
+Ciphertext<Element> operator*(const double a, const Ciphertext<Element> &b) {
+    return b * a;
+}
+
 
 /**
  * Generate a cryptocontext with given parameters.

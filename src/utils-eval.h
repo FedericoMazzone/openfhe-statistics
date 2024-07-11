@@ -18,6 +18,35 @@ usint depth2degree(
 
 
 /**
+ * @brief Compares two ciphertexts c1 and c2 as (c1 == c2).
+ * 
+ * This function compares two ciphertexts using the Chebyshev approximation of
+ * the indicator function in zero. The result is a ciphertext, where a value 0
+ * indicates that the corresponding components of c1 are different from those
+ * of c2, and a value of 1 indicates that the corresponding components of c1
+ * are approximately equal to those of c2.
+ * 
+ * @param c1 The first ciphertext to be compared.
+ * @param c2 The second ciphertext to be compared.
+ * @param a The lower bound of the approximation interval.
+ * @param b The upper bound of the approximation interval.
+ * @param degree The degree of the Chebyshev polynomial approximation.
+ * @param error The threshold for considering values close to zero (default is
+ * 0.00001).
+ * @return Ciphertext<DCRTPoly> A ciphertext representing the output of the
+ * comparison (c1 == c2).
+ */
+Ciphertext<DCRTPoly> equal(
+    const Ciphertext<DCRTPoly> &c1,
+    const Ciphertext<DCRTPoly> &c2,
+    double a,
+    double b,
+    uint32_t degree,
+    double error = 0.00001
+);
+
+
+/**
  * @brief Compares two ciphertexts c1 and c2 as (c1 > c2).
  * 
  * This function compares two ciphertexts using the Chebyshev approximation of

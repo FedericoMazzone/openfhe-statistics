@@ -65,6 +65,7 @@ set( SOURCES
         src/utils-ptxt.cpp
         src/ranking.cpp
         src/minimum.cpp
+        src/median.cpp
         src/sorting.cpp
         src/demo.cpp
 )
