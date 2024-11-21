@@ -37,3 +37,8 @@ Follow these steps to compile the library and run the provided demo:
     ```
 
 6. **Run Program:** Once the compilation is successful, the executable named `program` will be available in the `build` directory. You can run it to execute the provided demo.
+
+## Parameter Choise
+
+We advise to use the default parameters for the CKKS scheme and for the approximation degrees.
+If the output is incorrect or malformed, you can try a higher approximation for the comparison and indicator functions.
