@@ -34,6 +34,11 @@ Ciphertext<Element> operator-(const double &a, const Ciphertext<Element> &b) {
 }
 
 template <typename Element>
+Ciphertext<Element> operator-(const Ciphertext<Element> &a, const double &b) {
+    return a->GetCryptoContext()->EvalSub(a, b);
+}
+
+template <typename Element>
 Ciphertext<Element> operator*(const Ciphertext<Element> &a, const std::vector<double> &b) {
     CryptoContext<Element> cc = a->GetCryptoContext();
     auto plaintext = cc->MakeCKKSPackedPlaintext(b);
