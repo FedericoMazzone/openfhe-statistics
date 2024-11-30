@@ -76,6 +76,13 @@ Ciphertext<DCRTPoly> compare(
 );
 
 
+Ciphertext<DCRTPoly> compareAdv(
+    const Ciphertext<DCRTPoly> &c1,
+    const Ciphertext<DCRTPoly> &c2,
+    size_t dg,
+    size_t df
+);
+
 
 /**
  * @brief Compares two ciphertexts c1 and c2 as (c1 > c2).
@@ -129,4 +136,12 @@ Ciphertext<DCRTPoly> indicator(
     double a,
     double b,
     uint32_t degree
+);
+
+
+Ciphertext<DCRTPoly> indicatorAdv(
+    const Ciphertext<DCRTPoly> &c,
+    const double b,
+    const size_t dg,
+    const size_t df
 );
