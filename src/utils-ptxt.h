@@ -112,3 +112,20 @@ std::vector<double> matrix2vector(
     const std::vector<std::vector<double>>& matrix,
     const size_t matrixSize
 );
+
+
+/**
+ * @brief Loads a one-dimensional vector from a CSV file.
+ * 
+ * This function reads a one-dimensional vector from a CSV file. It reads the
+ * file line by line, parsing each line as a double value and storing it in the
+ * output vector. The function stops reading the file when the output vector is
+ * filled or when the end of the file is reached.
+ * 
+ * @param vectorLength Length of the output vector to be read from the file.
+ * @return std::vector<double> A one-dimensional vector containing the values
+ * read from the file.
+ */
+std::vector<double> loadPoints1D(
+    const size_t vectorLength
+);
