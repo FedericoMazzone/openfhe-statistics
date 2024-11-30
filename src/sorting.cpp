@@ -139,7 +139,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -204,7 +204,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
 
     std::cout << "===================================\n";
@@ -267,7 +267,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -317,7 +317,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -342,7 +342,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
 
     return result;
@@ -405,7 +405,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -511,7 +511,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
 
     std::cout << "===================================\n";
@@ -625,7 +625,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -675,7 +675,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     std::cout << "===================================\n";
@@ -700,7 +700,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
 
     end = std::chrono::high_resolution_clock::now();
     elapsed_seconds = end - start;
-    std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+    std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
 
     return result;
@@ -758,11 +758,7 @@ std::vector<double> testSorting(
         verbose
     );
 
-    std::vector<double> v(vectorLength);
-    for (size_t i = 0; i < vectorLength; i++)
-        v[i] = (double) rand() / RAND_MAX;
-        // v[i] = (double) (i + 1) / (vectorLength + 1);
-    // std::vector<double> v = {0.7, 0.2, 0.2, 0.8, 0.2, 0.5, 0.1, 0.3};
+    std::vector<double> v = loadPoints1D(vectorLength);
 
     std::cout << "Vector:           " << v << std::endl;
 
@@ -863,12 +859,7 @@ std::vector<double> testSortingMultiCtxt(
         verbose
     );
 
-    std::vector<double> v(vectorLength);
-    for (size_t i = 0; i < vectorLength; i++)
-        v[i] = (double) rand() / RAND_MAX;
-        // v[i] = 1.0 - (double) (i + 1) / (vectorLength + 1);
-    // std::vector<double> v = {0.7, 0.2, 0.2, 0.8, 0.2, 0.5, 0.1, 0.3};
-    
+    std::vector<double> v = loadPoints1D(vectorLength);
     std::vector<std::vector<double>> vTokens = splitVector(v, numCiphertext);
 
     std::cout << "Vector: " << vTokens << std::endl;
