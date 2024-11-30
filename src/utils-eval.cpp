@@ -8,6 +8,7 @@ usint depth2degree(
 {
     switch(depth)
     {
+        case 3:     return 2;
         case 4:     return 5;
         case 5:     return 13;
         case 6:     return 27;
@@ -67,6 +68,39 @@ Ciphertext<DCRTPoly> compare(
 }
 
 
+Ciphertext<DCRTPoly> signAdv(
+    Ciphertext<DCRTPoly> &c,
+    const size_t dg,
+    const size_t df
+)
+{
+    // f3(x) = (35 x - 35 x^3 + 21 x^5 - 5 x^7) / 16
+    std::vector<double> coeffF3 = {0, 35.0 / 16.0, 0, -35.0 / 16.0, 0, 21.0 / 16.0, 0, -5.0 / 16.0};
+    std::vector<double> coeffF3_final = {0.5, 35.0 / 32.0, 0, -35.0 / 32.0, 0, 21.0 / 32.0, 0, -5.0 / 32.0};
+    // g3(x) = (4589 x - 16577 x^3 + 25614 x^5 - 12860 x^7) / 1024
+    std::vector<double> coeffG3 = {0, 4589.0 / 1024.0, 0, -16577.0 / 1024.0, 0, 25614.0 / 1024.0, 0, -12860.0 / 1024.0};
+
+    for (size_t d = 0; d < dg; d++)
+        c = c->GetCryptoContext()->EvalPolyLinear(c, coeffG3);
+    for (size_t d = 0; d < df - 1; d++)
+        c = c->GetCryptoContext()->EvalPolyLinear(c, coeffF3);
+    c = c->GetCryptoContext()->EvalPolyLinear(c, coeffF3_final);
+    return c;
+}
+
+
+Ciphertext<DCRTPoly> compareAdv(
+    const Ciphertext<DCRTPoly> &c1,
+    const Ciphertext<DCRTPoly> &c2,
+    const size_t dg,
+    const size_t df
+)
+{
+    auto c = c1 - c2;
+    return signAdv(c, dg, df);
+}
+
+
 Ciphertext<DCRTPoly> compareGt(
     const Ciphertext<DCRTPoly> &c1,
     const Ciphertext<DCRTPoly> &c2,
@@ -102,6 +136,34 @@ Ciphertext<DCRTPoly> indicator(
         c,
         a, b, degree
     );
+}
+
+
+Ciphertext<DCRTPoly> indicatorAdv(
+    const Ciphertext<DCRTPoly> &c,
+    const double b,
+    const size_t dg,
+    const size_t df
+)
+{
+    // // auto r = c->GetCryptoContext()->EvalChebyshevFunction(
+    // //     [](double x) -> double {
+    // //         return std::sin((59.69)*(x*x*x*x)) / ((59.69)*(x*x*x*x)); },
+    // //     c,
+    // //     a, b, degree
+    // // );
+    // // r = r * r;
+
+    // // std::vector<double> coeffF3 = {0, 35.0 / 16.0, 0, -35.0 / 16.0, 0, 21.0 / 16.0, 0, -5.0 / 16.0};
+    // // r = r->GetCryptoContext()->EvalPolyLinear(r, coeffF3);
+    // // std::cout << r->GetLevel() << std::endl;
+    // // return r;
+
+    auto c1 = (1.0 / b) * (c + 0.5);
+    auto c2 = (1.0 / b) * (c - 0.5);
+    c1 = signAdv(c1, dg, df);
+    c2 = signAdv(c2, dg, df);
+    return c1 * (1 - c2);
 }
 
 
