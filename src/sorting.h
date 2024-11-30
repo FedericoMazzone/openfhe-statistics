@@ -106,6 +106,7 @@ Ciphertext<DCRTPoly> sortWithCorrection(
  * @param rightBoundC The right bound for comparison's approximation.
  * @param degreeC The degree of the comparison's approximation.
  * @param degreeI The degree of the indicator function's approximation.
+ * @param advanced Whether to use the higher-precision comparison function.
  * @return Ciphertext<DCRTPoly> A ciphertext representing the sorted vector.
  */
 std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
@@ -114,5 +115,6 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
     double leftBoundC,
     double rightBoundC,
     uint32_t degreeC,
-    uint32_t degreeI
+    uint32_t degreeI,
+    const bool advanced=false
 );
