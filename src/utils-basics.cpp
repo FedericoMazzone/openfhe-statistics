@@ -128,7 +128,7 @@ KeyPair<DCRTPoly> keyGeneration(
     std::chrono::duration<double> elapsed_seconds = end - start;
 
     if (verbose)
-        std::cout << "COMPLETED (" << std::fixed << std::setprecision(3) <<
+        std::cout << "COMPLETED (" <<
             elapsed_seconds.count() << "s)" << std::endl << std::endl;
     
     return keyPair;
