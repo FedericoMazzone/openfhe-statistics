@@ -19,7 +19,7 @@ int main()
 
 
 
-    std::cout << std::endl <<
+    std::cout << std::endl << std::fixed << std::setprecision(2) <<
         "Demo: computing ranking, minimum, and sorting of a given vector."
         << std::endl << std::endl;
 
