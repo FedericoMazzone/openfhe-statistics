@@ -1039,6 +1039,13 @@ void testSortingMultiCtxtHighPrecision(
 // {
 
 //     srand(time(NULL));
+//     std::cout << std::fixed << std::setprecision(2);
+
+//     // High precision cmp function
+//     const size_t numCiphertext = 8;
+//     const size_t dg = 5;
+//     const size_t df = 2;
+//     testSortingMultiCtxtHighPrecision(128, numCiphertext, dg, df);
 
 //     const size_t TEST_REPS = 10;
 
