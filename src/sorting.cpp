@@ -357,7 +357,8 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
     double leftBoundC,
     double rightBoundC,
     uint32_t degreeC,
-    uint32_t degreeI
+    uint32_t degreeI,
+    bool advanced
 )
 {
     const size_t numCiphertext = c.size();
@@ -454,11 +455,19 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
         #pragma omp critical
         {std::cout << "(j, k) = (" << j << ", " << k << ") - thread_id = " << omp_get_thread_num() << " - START" << std::endl;}
 
-        Ciphertext<DCRTPoly> Cjk = compare(
-            replR[j],
-            replC[k],
-            leftBoundC, rightBoundC, degreeC
-        );
+        Ciphertext<DCRTPoly> Cjk;
+        if (advanced)
+            Cjk = compareAdv(
+                replR[j],
+                replC[k],
+                degreeC, degreeI
+            );
+        else
+            Cjk = compare(
+                replR[j],
+                replC[k],
+                leftBoundC, rightBoundC, degreeC
+            );
 
         Ciphertext<DCRTPoly> Ejk = 4 * (1 - Cjk) * Cjk;
 
@@ -655,12 +664,20 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
             #pragma omp critical
             {std::cout << "(j, k) = (" << j << ", " << k << ") - thread_id = " << omp_get_thread_num() << " - START" << std::endl;}
 
-            Ciphertext<DCRTPoly> ind = indicator(
-                s[k] + subMasks[j],
-                -0.5, 0.5,
-                -1.01 * vectorLength, 1.01 * vectorLength,
-                degreeI
-            ) * replR[k];
+            Ciphertext<DCRTPoly> ind;
+            if (advanced)
+                ind = indicatorAdv(
+                    s[k] + subMasks[j],
+                    1.01 * vectorLength,
+                    degreeC, degreeI
+                ) * replR[k];
+            else
+                ind = indicator(
+                    s[k] + subMasks[j],
+                    -0.5, 0.5,
+                    -1.01 * vectorLength, 1.01 * vectorLength,
+                    degreeI
+                ) * replR[k];
 
             #pragma omp critical
             {
@@ -922,6 +939,99 @@ std::vector<double> testSortingMultiCtxt(
         elapsed_seconds.count()
     };
 
+}
+
+
+void testSortingMultiCtxtHighPrecision(
+    const size_t subVectorLength = 128,
+    const size_t numCiphertext = 2,
+    const usint dg = 4,
+    const usint df = 2
+)
+{
+
+    std::cout << "SubVector length: " << subVectorLength << std::endl;
+    std::cout << "Number of ciphertexts: " << numCiphertext << std::endl;
+    std::cout << "dg: " << dg << std::endl;
+    std::cout << "df: " << df << std::endl;
+
+    const size_t vectorLength           = subVectorLength * numCiphertext;
+    const usint integralPrecision       = 1;
+    const usint decimalPrecision        = 59;
+    const usint multiplicativeDepth     = (dg + df) * 10 + 6;
+    const usint numSlots                = subVectorLength * subVectorLength;
+    const bool enableBootstrap          = false;
+    const usint ringDim                 = 1 << 15;
+    const bool verbose                  = true;
+
+    std::vector<int32_t> indices = getRotationIndices(subVectorLength);
+
+    CryptoContext<DCRTPoly> cryptoContext = generateCryptoContext(
+        integralPrecision,
+        decimalPrecision,
+        multiplicativeDepth,
+        numSlots,
+        enableBootstrap,
+        ringDim,
+        verbose
+    );
+
+    KeyPair<DCRTPoly> keyPair = keyGeneration(
+        cryptoContext,
+        indices,
+        numSlots,
+        enableBootstrap,
+        verbose
+    );
+
+    std::vector<double> v = loadPoints1D(vectorLength);
+    std::vector<std::vector<double>> vTokens = splitVector(v, numCiphertext);
+
+    std::cout << "Vector: " << vTokens << std::endl;
+
+    std::cout << "Expected sorting: " << sort(v) << std::endl;
+
+    std::vector<Ciphertext<DCRTPoly>> vC(numCiphertext);
+    for (size_t j = 0; j < numCiphertext; j++)
+        vC[j] = cryptoContext->Encrypt(
+            keyPair.publicKey,
+            cryptoContext->MakeCKKSPackedPlaintext(vTokens[j])
+        );
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    std::vector<Ciphertext<DCRTPoly>> resultC;
+    resultC = sortWithCorrection(
+        vC,
+        subVectorLength,
+        -1.0, 1.0,
+        dg, df,
+        true
+    );
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::cout << elapsed_seconds.count() << "s" << std::endl;
+
+    Plaintext resultP;
+    std::vector<std::vector<double>> resultTokens(numCiphertext);
+    for (size_t i = 0; i < numCiphertext; i++)
+    {
+        cryptoContext->Decrypt(keyPair.secretKey, resultC[i], &resultP);
+        resultP->SetLength(subVectorLength * subVectorLength);
+        std::vector<double> resultMatrix = resultP->GetRealPackedValue();
+        std::vector<double> resultToken(subVectorLength);
+        for (size_t j = 0; j < subVectorLength; j++)
+            resultToken[j] = resultMatrix[j * subVectorLength];
+        resultTokens[i] = resultToken;
+    }
+    std::vector<double> result = concatVectors(resultTokens);
+    std::cout << "Sorting: " << result << std::endl;
+    // Plaintext resultP;
+    // cryptoContext->Decrypt(keyPair.secretKey, resultC[0], &resultP);
+    // resultP->SetLength(subVectorLength * subVectorLength);
+    // std::vector<double> resultMatrix = resultP->GetRealPackedValue();
+    // std::cout << "Sorting:          " << vector2matrix(resultMatrix, subVectorLength) << std::endl;
 }
 
 
