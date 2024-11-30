@@ -1,5 +1,9 @@
 #include "utils-ptxt.h"
 
+#include <fstream>
+#include <sstream>
+#include <string>
+
 
 std::vector<double> averageVectors(
     const std::vector<std::vector<double>>& vectors
@@ -109,4 +113,39 @@ std::vector<double> matrix2vector(
     }
 
     return vec;
+}
+
+
+std::vector<double> loadPoints1D(
+    const size_t vectorLength
+)
+{
+    std::vector<double> v(vectorLength, 0.0);
+    std::ifstream file("data/points1d.csv");
+
+    if (!file.is_open())
+    {
+        file.open("../data/points1d.csv");
+        if (!file.is_open())
+            std::cerr << "Error: Could not open the file!" << std::endl;
+    }
+
+    std::string line;
+    size_t count = 0;
+
+    while (std::getline(file, line) && count < vectorLength)
+    {
+        try
+        {
+            v[count] = std::stod(line);
+            count++;
+        } catch (const std::exception& e)
+        {
+            std::cerr << "Error: Invalid number format in the file." << std::endl;
+        }
+    }
+
+    file.close();
+
+    return v;
 }
