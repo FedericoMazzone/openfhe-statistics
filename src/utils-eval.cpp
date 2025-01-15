@@ -29,10 +29,10 @@ usint depth2degree(
 Ciphertext<DCRTPoly> equal(
     const Ciphertext<DCRTPoly> &c1,
     const Ciphertext<DCRTPoly> &c2,
-    double a,
-    double b,
-    uint32_t degree,
-    double error
+    const double a,
+    const double b,
+    const uint32_t degree,
+    const double error
 )
 {
     return c1->GetCryptoContext()->EvalChebyshevFunction(
@@ -50,10 +50,10 @@ Ciphertext<DCRTPoly> equal(
 Ciphertext<DCRTPoly> compare(
     const Ciphertext<DCRTPoly> &c1,
     const Ciphertext<DCRTPoly> &c2,
-    double a,
-    double b,
-    uint32_t degree,
-    double error
+    const double a,
+    const double b,
+    const uint32_t degree,
+    const double error
 )
 {
     return c1->GetCryptoContext()->EvalChebyshevFunction(
@@ -104,10 +104,10 @@ Ciphertext<DCRTPoly> compareAdv(
 Ciphertext<DCRTPoly> compareGt(
     const Ciphertext<DCRTPoly> &c1,
     const Ciphertext<DCRTPoly> &c2,
-    double a,
-    double b,
-    uint32_t degree,
-    double error
+    const double a,
+    const double b,
+    const uint32_t degree,
+    const double error
 )
 {
     return c1->GetCryptoContext()->EvalChebyshevFunction(
@@ -123,11 +123,11 @@ Ciphertext<DCRTPoly> compareGt(
 
 Ciphertext<DCRTPoly> indicator(
     const Ciphertext<DCRTPoly> &c,
-    double a1,
-    double b1,
-    double a,
-    double b,
-    uint32_t degree
+    const double a1,
+    const double b1,
+    const double a,
+    const double b,
+    const uint32_t degree
 )
 {
     return c->GetCryptoContext()->EvalChebyshevFunction(
@@ -146,100 +146,25 @@ Ciphertext<DCRTPoly> indicatorAdv(
     const size_t df
 )
 {
-    // // auto r = c->GetCryptoContext()->EvalChebyshevFunction(
-    // //     [](double x) -> double {
-    // //         return std::sin((59.69)*(x*x*x*x)) / ((59.69)*(x*x*x*x)); },
-    // //     c,
-    // //     a, b, degree
-    // // );
-    // // r = r * r;
-
-    // // std::vector<double> coeffF3 = {0, 35.0 / 16.0, 0, -35.0 / 16.0, 0, 21.0 / 16.0, 0, -5.0 / 16.0};
-    // // r = r->GetCryptoContext()->EvalPolyLinear(r, coeffF3);
-    // // std::cout << r->GetLevel() << std::endl;
-    // // return r;
-
-    auto c1 = (1.0 / b) * (c + 0.5);
-    auto c2 = (1.0 / b) * (c - 0.5);
+    auto tmp = (1.0 / b) * c;
+    auto c1 = tmp + 0.5 / b;
+    auto c2 = tmp - 0.5 / b;
     c1 = signAdv(c1, dg, df);
     c2 = signAdv(c2, dg, df);
     return c1 * (1 - c2);
 }
 
 
-// int main()
-// {
-
-//     const usint vectorLength            = 4;
-//     const usint functionDepth           = 10;
-
-//     const usint integralPrecision       = 10;
-//     const usint decimalPrecision        = 50;
-//     const usint multiplicativeDepth     = functionDepth;
-//     const usint numSlots                = vectorLength;
-//     const bool enableBootstrap          = false;
-//     const usint ringDim                 = 0;
-//     const bool verbose                  = true;
-
-//     std::vector<int32_t> indices = {};
-
-//     CryptoContext<DCRTPoly> cryptoContext = generateCryptoContext(
-//         integralPrecision,
-//         decimalPrecision,
-//         multiplicativeDepth,
-//         numSlots,
-//         enableBootstrap,
-//         ringDim,
-//         verbose
-//     );
-
-//     KeyPair<DCRTPoly> keyPair = keyGeneration(
-//         cryptoContext,
-//         indices,
-//         numSlots,
-//         enableBootstrap,
-//         verbose
-//     );
-
-//     std::vector<double> v = {-0.75, -0.1, 0.0, 0.75};
-//     std::vector<double> zero = {0.0, 0.0, 0.0, 0.0};
-
-//     std::cout << "Vector: " << v << std::endl;
-
-//     Ciphertext<DCRTPoly> vC = cryptoContext->Encrypt(
-//         keyPair.publicKey,
-//         cryptoContext->MakeCKKSPackedPlaintext(v)
-//     );
-//     Ciphertext<DCRTPoly> zeroC = cryptoContext->Encrypt(
-//         keyPair.publicKey,
-//         cryptoContext->MakeCKKSPackedPlaintext(zero)
-//     );
-
-//     auto start = std::chrono::high_resolution_clock::now();
-
-//     // Ciphertext<DCRTPoly> resultC = compare(
-//     //     zeroC, vC,
-//     //     -1.0, 1.0,
-//     //     depth2degree(functionDepth)
-//     // );
-//     Ciphertext<DCRTPoly> resultC = indicator(
-//         vC,
-//         -0.5, 0.5,
-//         -1.0, 1.0,
-//         depth2degree(functionDepth)
-//     );
-
-//     auto end = std::chrono::high_resolution_clock::now();
-//     std::chrono::duration<double> elapsed_seconds = end - start;
-//     std::cout << elapsed_seconds.count() << "s" << std::endl;
-
-//     Plaintext resultP;
-//     cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
-//     resultP->SetLength(vectorLength);
-
-//     std::vector<double> result = resultP->GetRealPackedValue();
-//     std::cout << "Result: " << result << std::endl;
-
-//     return 0;
-
-// }
+Ciphertext<DCRTPoly> indicatorAdvShifted(
+    const Ciphertext<DCRTPoly> &c,
+    const double b,
+    const size_t dg,
+    const size_t df
+)
+{
+    auto c1 = (2.0 / (b + 1)) * c + 2.0 / (b + 1) - 1.0;
+    auto c2 = (-2.0 / (b + 1)) * c + 2.0 / (b + 1) + 1.0;
+    c1 = signAdv(c1, dg, df);
+    c2 = signAdv(c2, dg, df);
+    return c1 * c2;
+}
