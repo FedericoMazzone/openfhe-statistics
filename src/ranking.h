@@ -46,10 +46,10 @@ std::vector<double> rank(
 Ciphertext<DCRTPoly> rank(
     Ciphertext<DCRTPoly> c,
     const size_t vectorLength,
-    double leftBoundC,
-    double rightBoundC,
-    uint32_t degreeC,
-    bool cmpGt = false
+    const double leftBoundC,
+    const double rightBoundC,
+    const uint32_t degreeC,
+    const bool cmpGt = false
 );
 
 
@@ -76,11 +76,11 @@ Ciphertext<DCRTPoly> rank(
 std::vector<Ciphertext<DCRTPoly>> rank(
     const std::vector<Ciphertext<DCRTPoly>> &c,
     const size_t subVectorLength,
-    double leftBoundC,
-    double rightBoundC,
-    uint32_t degreeC,
-    bool cmpGt = false,
-    bool complOpt = true
+    const double leftBoundC,
+    const double rightBoundC,
+    const uint32_t degreeC,
+    const bool cmpGt = false,
+    const bool complOpt = true
 );
 
 
@@ -103,10 +103,10 @@ std::vector<Ciphertext<DCRTPoly>> rank(
 Ciphertext<DCRTPoly> rankWithCorrection(
     Ciphertext<DCRTPoly> c,
     const size_t vectorLength,
-    double leftBoundC,
-    double rightBoundC,
-    uint32_t degreeC,
-    bool parallel = false
+    const double leftBoundC,
+    const double rightBoundC,
+    const uint32_t degreeC,
+    const bool parallel = false
 );
 
 
@@ -130,7 +130,84 @@ Ciphertext<DCRTPoly> rankWithCorrection(
 std::vector<Ciphertext<DCRTPoly>> rankWithCorrection(
     const std::vector<Ciphertext<DCRTPoly>> &c,
     const size_t subVectorLength,
-    double leftBoundC,
-    double rightBoundC,
-    uint32_t degreeC
+    const double leftBoundC,
+    const double rightBoundC,
+    const uint32_t degreeC
+);
+
+
+/**
+ * @brief Computes the rank of elements in a vector stored in multiple
+ * ciphertexts.
+ * 
+ * This function computes the rank of elements in a ciphertext vector `c`. It
+ * uses the fg approximation of the sign function.
+ * 
+ * @param c A vector containing ciphertexts, each representing a portion of the
+ * input vector.
+ * @param subVectorLength The length of each sub-vector stored across the
+ * ciphertexts.
+ * @param dg The composition degree of g (reduce the input gap).
+ * @param df The composition degree of f (reduce the output error).
+ * @param cmpGt Flag indicating whether to compute standard (true) or
+ * fractional rank (false), default is false.
+ * @param complOpt Flag indicating whether to use the complementary comparison
+ * optimization.
+ * @return std::vector<Ciphertext<DCRTPoly>> A vector containing ciphertexts
+ * representing the computed ranks.
+ */
+std::vector<Ciphertext<DCRTPoly>> rankFG(
+    const std::vector<Ciphertext<DCRTPoly>> &c,
+    const size_t subVectorLength,
+    const uint32_t dg,
+    const uint32_t df,
+    const bool cmpGt = false,
+    const bool complOpt = true
+);
+
+
+/**
+ * @brief Computes the rank of elements in a ciphertext vector.
+ * 
+ * This function computes the rank of elements in a ciphertext vector `c`,
+ * while handling ties at the same time. It uses the fg approximation of the
+ * sign function.
+ * 
+ * @param c The ciphertext vector for which to compute the rank.
+ * @param vectorLength The length of the vector.
+ * @param dg The composition degree of g (reduce the input gap).
+ * @param df The composition degree of f (reduce the output error).
+ * @return Ciphertext<DCRTPoly> The ciphertext vector containing the computed
+ * ranks.
+ */
+Ciphertext<DCRTPoly> rankWithCorrectionFG(
+    Ciphertext<DCRTPoly> c,
+    const size_t vectorLength,
+    const uint32_t dg,
+    const uint32_t df
+);
+
+
+/**
+ * @brief Computes the rank of elements in a vector stored in multiple
+ * ciphertexts.
+ * 
+ * This function computes the rank of elements in a ciphertext vector `c`,
+ * while handling ties at the same time. It uses the fg approximation of the
+ * sign function.
+ * 
+ * @param c A vector containing ciphertexts, each representing a portion of the
+ * input vector.
+ * @param subVectorLength The length of each sub-vector stored across the
+ * ciphertexts.
+ * @param dg The composition degree of g (reduce the input gap).
+ * @param df The composition degree of f (reduce the output error).
+ * @return std::vector<Ciphertext<DCRTPoly>> A vector containing ciphertexts
+ * representing the computed ranks.
+ */
+std::vector<Ciphertext<DCRTPoly>> rankWithCorrectionFG(
+    const std::vector<Ciphertext<DCRTPoly>> &c,
+    const size_t subVectorLength,
+    const uint32_t dg,
+    const uint32_t df
 );
