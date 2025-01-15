@@ -67,7 +67,8 @@ Ciphertext<DCRTPoly> sumRows(
     const size_t outputRow
 )
 {
-    c = replicateRow(c, matrixSize);
+    for (size_t i = 0; i < LOG2(matrixSize); i++)
+        c += c >> (1 << (LOG2(matrixSize) + i));
 
     if (maskOutput)
         c = maskRow(c, matrixSize, outputRow);

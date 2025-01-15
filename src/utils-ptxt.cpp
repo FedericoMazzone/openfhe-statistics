@@ -55,41 +55,6 @@ std::vector<double> concatVectors(
 }
 
 
-std::ostream& operator<<(
-    std::ostream& os,
-    const std::vector<std::vector<double>>& matrix
-)
-{
-    size_t numRows = matrix.size();
-    size_t numCols = matrix[0].size();
-
-    // Find the maximum width of elements in each column
-    std::vector<size_t> maxWidths(numCols, 0);
-    for (size_t i = 0; i < numRows; ++i) {
-        for (size_t j = 0; j < numCols; ++j) {
-            size_t width = std::to_string(matrix[i][j]).length();
-            if (width > maxWidths[j]) {
-                maxWidths[j] = width;
-            }
-        }
-    }
-
-    // Print the matrix
-    os << std::endl;
-    for (size_t i = 0; i < numRows; ++i) {
-        for (size_t j = 0; j < numCols; ++j) {
-            os << std::setw(maxWidths[j]) << matrix[i][j];
-            if (j != numCols - 1) {
-                os << "  "; // Adjust this spacing as needed
-            }
-        }
-        os << std::endl;
-    }
-
-    return os;
-}
-
-
 std::vector<std::vector<double>> vector2matrix(
     const std::vector<double> &vec,
     const size_t matrixSize

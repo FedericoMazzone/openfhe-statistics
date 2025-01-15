@@ -4,9 +4,11 @@
 #include <iostream>
 #include <vector>
 
-#define LOG2(X) (size_t) std::ceil(std::log2((X)))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN_VEC(V) *std::min_element(V.begin(), V.end())
 #define MAX_VEC(V) *std::max_element(V.begin(), V.end())
+#define LOG2(X) (size_t) std::ceil(std::log2((X)))
 
 
 /**
@@ -71,10 +73,40 @@ std::vector<double> concatVectors(
  * @param matrix The matrix to be printed.
  * @return std::ostream& A reference to the output stream.
  */
+template <typename T>
 std::ostream& operator<<(
     std::ostream& os,
-    const std::vector<std::vector<double>>& matrix
-);
+    const std::vector<std::vector<T>>& matrix
+)
+{
+    size_t numRows = matrix.size();
+    size_t numCols = matrix[0].size();
+
+    // Find the maximum width of elements in each column
+    std::vector<size_t> maxWidths(numCols, 0);
+    for (size_t i = 0; i < numRows; i++)
+        for (size_t j = 0; j < numCols; j++)
+        {
+            size_t width = std::to_string(matrix[i][j]).length();
+            if (width > maxWidths[j])
+                maxWidths[j] = width;
+        }
+
+    // Print the matrix
+    os << std::endl;
+    for (size_t i = 0; i < numRows; ++i)
+    {
+        for (size_t j = 0; j < numCols; ++j)
+        {
+            os << std::setw(maxWidths[j]) << matrix[i][j];
+            if (j != numCols - 1)
+                os << "  ";
+        }
+        os << std::endl;
+    }
+
+    return os;
+}
 
 
 /**

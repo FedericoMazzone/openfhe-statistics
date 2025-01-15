@@ -70,13 +70,13 @@ CryptoContext<DCRTPoly> generateCryptoContext(
         }
 
         std::ostringstream logMessage;
-        logMessage << "SETUP PARAMETERS"                                                             << std::endl;
+        logMessage << "CKKS PARAMETERS"                                                              << std::endl;
         logMessage << "Integral Bit Precision        : " << integralPrecision                        << std::endl;
         logMessage << "Decimal Bit Precision         : " << decimalPrecision                         << std::endl;
         logMessage << "Ciphertext Modulus Precision  : " << ciphertextModulusBitsize                 << std::endl;
         logMessage << "Ring Dimension                : " << ringDimension                            << std::endl;
         logMessage << "Max Slots                     : " << maxNumSlots                              << std::endl;
-        logMessage << "Slots                         : " << numSlots                                << std::endl;
+        logMessage << "Slots                         : " << numSlots                                 << std::endl;
         logMessage << "Multiplicative Depth          : " << parameters.GetMultiplicativeDepth()      << std::endl;
         logMessage << "Security Level                : " << parameters.GetSecurityLevel()            << std::endl;
         logMessage << "Secret Key Distribution       : " << parameters.GetSecretKeyDist()            << std::endl;
