@@ -42,3 +42,6 @@ shell_scripts/
 
 # Build directory
 build/
+
+# Log directory
+log/

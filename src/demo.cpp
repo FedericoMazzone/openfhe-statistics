@@ -3,9 +3,10 @@
 #include "utils-matrices.h"
 #include "ranking.h"
 #include "minimum.h"
+#include "median.h"
 #include "sorting.h"
 
-// Demo: computing ranking, minimum, and sorting of a given vector.
+// Demo: computing ranking, minimum, median, and sorting of a given vector.
 
 int main()
 {
@@ -17,17 +18,13 @@ int main()
     const usint compareDepth = 10;
     const usint indicatorDepth = 10;
 
-
-
-    std::cout << std::endl << std::fixed << std::setprecision(2) <<
+    std::cout << std::fixed << std::setprecision(2) <<
         "Demo: computing ranking, minimum, and sorting of a given vector."
-        << std::endl << std::endl;
-
-    std::cout << "Vector: " << v << std::endl << std::endl;
-    std::cout << "Compare depth: " << compareDepth << std::endl;
-    std::cout << "Indicator depth: " << indicatorDepth << std::endl
-              << std::endl;
-
+        << std::endl;
+    std::cout << "Vector           : " << v << std::endl;
+    std::cout << "Compare depth    : " << compareDepth << std::endl;
+    std::cout << "Indicator depth  : " << indicatorDepth << std::endl
+        << std::endl;
 
     ////////////////////////////////////////////////////////////////////////
     //                       Setting up CKKS scheme                       //
@@ -35,9 +32,9 @@ int main()
 
     const size_t vectorLength = v.size();
 
-    const usint integralPrecision       = 12;
-    const usint decimalPrecision        = 48;
-    const usint multiplicativeDepth     = compareDepth + indicatorDepth + 1;
+    const usint integralPrecision       = 1;
+    const usint decimalPrecision        = 42;
+    const usint multiplicativeDepth     = compareDepth + indicatorDepth + 3;
     const usint numSlots                = vectorLength * vectorLength;
     const bool enableBootstrap          = false;
     const usint ringDim                 = 0;
@@ -91,8 +88,8 @@ int main()
     cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
     resultP->SetLength(vectorLength);
     std::vector<double> result = resultP->GetRealPackedValue();
-    std::cout << "Ranking           : " << result << std::endl;
-    std::cout << "Expected ranking  : " << rank(v) << std::endl << std::endl;
+    std::cout << "Computed ranking : " << result << std::endl;
+    std::cout << "Expected ranking : " << rank(v) << std::endl << std::endl;
 
 
     ////////////////////////////////////////////////////////////////////////
@@ -110,16 +107,42 @@ int main()
     cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
     resultP->SetLength(vectorLength);
     result = resultP->GetRealPackedValue();
-    double computedMin = 0.0;
-    double norm = 0.0;
-    for (size_t i = 0; i < v.size(); i++)
-    {
-        computedMin += v[i] * result[i];
-        norm += result[i];
-    }
-    computedMin /= norm;
-    std::cout << "Minimum           : " << computedMin << std::endl;
-    std::cout << "Expected minimum  : " << min(v) << std::endl << std::endl;
+
+    std::vector<double> minima;
+    for (size_t i = 0; i < vectorLength; i++)
+        if (result[i] > 0.5)
+            minima.push_back(v[i]);
+    std::cout << "Computed minimum : " << minima[0] << std::endl;
+    std::cout << "Expected minimum : " << min(v) << std::endl << std::endl;
+
+
+    ////////////////////////////////////////////////////////////////////////
+    //                          Computing MEDIAN                          //
+    ////////////////////////////////////////////////////////////////////////
+
+    std::cout << "Computing MEDIAN..." << std::endl;
+    resultC = median(
+        vC,
+        vectorLength,
+        -1.0, 1.0,
+        depth2degree(compareDepth),
+        depth2degree(indicatorDepth)
+    );
+    cryptoContext->Decrypt(keyPair.secretKey, resultC, &resultP);
+    resultP->SetLength(vectorLength);
+    result = resultP->GetRealPackedValue();
+
+    std::vector<double> medianValues;
+    for (size_t i = 0; i < vectorLength; i++)
+        if (result[i] > 0.5)
+            medianValues.push_back(v[i]);
+    // compute average of all median values
+    double medianValue = 0.0;
+    for (size_t i = 0; i < medianValues.size(); i++)
+        medianValue += medianValues[i];
+    medianValue /= medianValues.size();
+    std::cout << "Computed median  : " << medianValue << std::endl;
+    std::cout << "Expected median  : " << median(v) << std::endl << std::endl;
 
 
     ////////////////////////////////////////////////////////////////////////
@@ -139,8 +162,8 @@ int main()
     std::vector<double> resultMatrix = resultP->GetRealPackedValue();
     for (size_t i = 0; i < vectorLength; i++)
         result[i] = resultMatrix[i * vectorLength];
-    std::cout << "Sorting           : " << result << std::endl;
-    std::cout << "Expected sorting  : " << sort(v) << std::endl << std::endl;
+    std::cout << "Computed sorting : " << result << std::endl;
+    std::cout << "Expected sorting : " << sort(v) << std::endl << std::endl;
 
 
     return 0;

@@ -69,4 +69,4 @@ set( SOURCES
         src/sorting.cpp
         src/demo.cpp
 )
-add_executable( program ${SOURCES} )
+add_executable( demo ${SOURCES} )
