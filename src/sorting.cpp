@@ -176,7 +176,7 @@ std::vector<Ciphertext<DCRTPoly>> sort(
     for (size_t i = 0; i < numReqThreads; i++)
     {
         // Computing the indeces
-        size_t j, k, counter = 0;
+        size_t j = 0, k = 0, counter = 0;
         bool loopCond = true;
         for (j = 0; j < numCiphertext && loopCond; j++)
             for (k = j; k < numCiphertext && loopCond; k++)
@@ -454,7 +454,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrection(
     for (size_t i = 0; i < numReqThreads; i++)
     {
         // Computing the indeces
-        size_t j, k, counter = 0;
+        size_t j = 0, k = 0, counter = 0;
         bool loopCond = true;
         for (j = 0; j < numCiphertext && loopCond; j++)
             for (k = j; k < numCiphertext && loopCond; k++)
@@ -893,7 +893,7 @@ std::vector<Ciphertext<DCRTPoly>> sortWithCorrectionFG(
     for (size_t i = 0; i < numReqThreads; i++)
     {
         // Computing the indeces
-        size_t j, k, counter = 0;
+        size_t j = 0, k = 0, counter = 0;
         bool loopCond = true;
         for (j = 0; j < numCiphertext && loopCond; j++)
             for (k = j; k < numCiphertext && loopCond; k++)

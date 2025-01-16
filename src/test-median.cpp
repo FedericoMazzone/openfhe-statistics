@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
     std::cout << "Single thread         : " << (singleThread ? "true" : "false") << std::endl;
 
     std::cout << std::fixed << std::setprecision(2);
-    int numThreads = std::thread::hardware_concurrency();
+    size_t numThreads = std::thread::hardware_concurrency();
     std::cout << "Number of threads     : " << numThreads << std::endl;
 
     const size_t subVectorLength = 256;

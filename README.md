@@ -1,6 +1,7 @@
 # Ranking, Order Statistics, and Sorting under CKKS
 
 This repository provides a library for performing ranking, order statistics, and sorting operations using the CKKS (Cheon-Kim-Kim-Song) homomorphic encryption scheme.
+Our code is built on top of the OpenFHE library.
 
 
 ## Installation (Linux)
@@ -53,9 +54,9 @@ To ensure compatibility, we recommend using version **1.1.2** of the OpenFHE lib
 
 For additional support or troubleshooting, refer to the official [OpenFHE Documentation](https://openfhe-development.readthedocs.io/en/latest/).
 
-### Compiling the Library
+### Our Library
 
-Follow these steps to compile the library and build the demo and benchmarking executables:
+Follow these steps to compile our library and build the demo and benchmarking executables:
 
 1. **Create a Build Directory**
 
