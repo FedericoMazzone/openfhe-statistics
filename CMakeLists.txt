@@ -58,15 +58,56 @@ endif()
 ### EXAMPLE:
 ### add_executable( test demo-simple-example.cpp )
 
-set( SOURCES
-        src/utils-basics.cpp
-        src/utils-eval.cpp
-        src/utils-matrices.cpp
-        src/utils-ptxt.cpp
-        src/ranking.cpp
-        src/minimum.cpp
-        src/median.cpp
-        src/sorting.cpp
-        src/demo.cpp
-)
-add_executable( demo ${SOURCES} )
+add_executable( ranking
+					src/utils-basics.cpp
+					src/utils-eval.cpp
+					src/utils-matrices.cpp
+					src/utils-ptxt.cpp
+					src/ranking.cpp
+					src/test-ranking.cpp
+				)
+
+
+add_executable( minimum
+					src/utils-basics.cpp
+					src/utils-eval.cpp
+					src/utils-matrices.cpp
+					src/utils-ptxt.cpp
+					src/ranking.cpp
+					src/minimum.cpp
+					src/test-minimum.cpp
+				)
+
+
+add_executable( median
+					src/utils-basics.cpp
+					src/utils-eval.cpp
+					src/utils-matrices.cpp
+					src/utils-ptxt.cpp
+					src/ranking.cpp
+					src/median.cpp
+					src/test-median.cpp
+				)
+
+
+add_executable( sorting
+					src/utils-basics.cpp
+					src/utils-eval.cpp
+					src/utils-matrices.cpp
+					src/utils-ptxt.cpp
+					src/sorting.cpp
+					src/test-sorting.cpp
+				)
+
+
+add_executable( demo
+					src/utils-basics.cpp
+					src/utils-eval.cpp
+					src/utils-matrices.cpp
+					src/utils-ptxt.cpp
+					src/ranking.cpp
+					src/minimum.cpp
+					src/median.cpp
+					src/sorting.cpp
+					src/demo.cpp
+				)
