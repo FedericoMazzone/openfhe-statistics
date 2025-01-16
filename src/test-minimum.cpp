@@ -377,8 +377,8 @@ int main(int argc, char *argv[])
             }
             else
             {
-                omp_set_num_threads(64);
-                if (numCiphertext <= 4)
+                omp_set_num_threads(numThreads);
+                if (numCiphertext <= numThreads / 16)
                     omp_set_max_active_levels(10);
                 testMinimumMultiCtxtAdv(subVectorLength, numCiphertext, dg_c, df_c, dg_i, df_i);
             }
