@@ -121,6 +121,8 @@ Follow these steps to compile our library and build the demo and benchmarking ex
 
 ---
 
+
+
 ## Benchmarking and Functionality Tests
 
 The executables (`ranking`, `minimum`, `median`, and `sorting`) can be used to benchmark the runtime of the library under various configurations. These executables generate random input vectors, set up the CKKS encryption scheme, and perform the respective operations. By default, the CKKS parameters and approximation degrees are selected automatically, but you may modify them to optimize performance for specific scenarios.
@@ -185,5 +187,47 @@ Example:
 ```bash
 ./build/sorting 32 1
 ```
+
+### Automatic Benchmarking
+
+We also provide a shell script `benchmark.sh`, which automatically benchmarks a given functionality for vector length going from 8 to 16384, in both single-threaded and multi-threaded setting. The runtime and memory consumption are stored in a csv file `benchmark.out`, while the log files are stored in the folder `logs`.
+```bash
+sh ./benchmark.sh <algorithm>
+```
+- **algorithm**: One of the following: ranking, ranking-tie, minimum, median, sorting.
+
+
+## Known Issues
+
+**Missing Shared Library**
+
+If you encounter the following error
+```error while loading shared libraries: libOPENFHEbinfhe.so.1: cannot open shared object file: No such file or directory```, it means the OpenFHE shared libraries are not in the dynamic linker’s search path.
+
+SOLUTION
+1. Temporarily set `LD_LIBRARY_PATH` (valid for the current session only):
+```bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+```
+2. Make it permanent (applies to future sessions):
+```bash
+echo 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+If OpenFHE is installed in a different location, replace /usr/local/lib with the correct path.
+
+
+
+
+## Docker
+
+We also provide a Docker container, hosted on Docker Hub.
+To run the container, follow the instructions at https://hub.docker.com/r/mazzonef/openfhe-statistics .
+
+However, for optimal performance, we recommend using the standard installation.
+Running our code in Docker can sometimes introduce runtime overhead, which is particularly noticeable with small vectors.
+
+
+
 
 ---
