@@ -4,6 +4,30 @@ This repository provides a library for performing ranking, order statistics, and
 Our code is built on top of the OpenFHE library.
 
 
+## Paper and Citation
+
+This repository accompanies our paper [Efficient Ranking, Order Statistics, and Sorting under CKKS](https://arxiv.org/abs/2412.15126), in publication at the USENIX Security '25.
+
+If you use this work, please cite:
+
+```bibtex
+@inproceedings{mazzone2025efficient,
+  title={Efficient Ranking, Order Statistics, and Sorting under CKKS},
+  author={Mazzone, Federico and Everts, Maarten and Hahn, Florian and Peter, Andreas},
+  booktitle={34th USENIX Security Symposium (USENIX Security '25)},
+  year={2025},
+  address={Seattle, WA},
+  publisher={USENIX Association},
+  month={aug}
+}
+```
+
+
+## Contact
+
+For bug reports or inquiries: [contact info](https://people.utwente.nl/f.mazzone).
+
+
 ## Installation (Linux)
 
 ### OpenFHE Library
