@@ -6,7 +6,7 @@ Our code is built on top of the OpenFHE library.
 
 ## Paper and Citation
 
-This repository accompanies our paper [Efficient Ranking, Order Statistics, and Sorting under CKKS](https://arxiv.org/abs/2412.15126), in publication at the USENIX Security '25.
+This repository accompanies our paper [Efficient Ranking, Order Statistics, and Sorting under CKKS](https://arxiv.org/abs/2412.15126), in publication at USENIX Security '25.
 
 If you use this work, please cite:
 
