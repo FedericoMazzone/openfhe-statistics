@@ -221,6 +221,43 @@ sh ./benchmark.sh <algorithm>
 - **algorithm**: One of the following: ranking, ranking-tie, minimum, median, sorting.
 
 
+## Suggested Parameters
+
+The parameter settings used for approximating the comparison and indicator functions in our experiments can be found in the `test-*.cpp` files. Note that:
+- The approximation degree of the **comparison function** depends on the precision of the input elements (e.g., sorting 8-bit vs. 16-bit elements).  
+- The approximation degree of the **indicator function** depends on the number of input elements (e.g., sorting 32 vs. 64 elements).
+
+We suggest using the **f, g approximation method** with the composition degrees as follows.
+
+**COMPARISON FUNCTION**
+
+| Bit Precision | df | dg |
+|--------------|----------|----------|
+| 1  | 2 | 1 |
+| 2  | 2 | 1 |
+| 3  | 2 | 2 |
+| 4  | 2 | 2 |
+| 5  | 2 | 3 |
+| 6  | 2 | 3 |
+| 7  | 2 | 4 |
+| 8  | 2 | 4 |
+| 9  | 2 | 5 |
+| 10 | 2 | 5 |
+| 11 | 2 | 5 |
+| 12 | 2 | 6 |
+| 13 | 2 | 6 |
+| 14 | 2 | 7 |
+| 15 | 2 | 7 |
+| 16 | 2 | 8 |
+
+**INDICATOR FUNCTION**
+- df = 2
+- dg = (log2(vectorLength) + 1) / 2
+
+These settings provide strong correctness guarantees, but they may be overly conservative for many applications.
+We encourage you to experiment with lower parameters and/or explore Chebyshev approximation for improved efficiency.  
+
+
 ## Known Issues
 
 **Missing Shared Library**
