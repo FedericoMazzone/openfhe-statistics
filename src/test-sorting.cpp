@@ -191,7 +191,7 @@ void testSortingAdv(
     const usint df_c,
     const usint dg_i,
     const usint df_i,
-    const bool tieCorrection = false
+    const bool tieCorrection = true
 )
 {
 
@@ -275,7 +275,7 @@ void testSortingMultiCtxtAdv(
     const usint df_c,
     const usint dg_i,
     const usint df_i,
-    const bool tieCorrection = false
+    const bool tieCorrection = true
 )
 {
 
