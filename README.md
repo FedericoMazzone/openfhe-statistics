@@ -28,7 +28,18 @@ If you use this work, please cite:
 For bug reports or inquiries: [contact info](https://people.utwente.nl/f.mazzone).
 
 
-## Installation (Linux)
+## Installation (Linux Ubuntu)
+
+
+### Prerequisites
+
+Install compiler and cmake if needed.
+
+   ```bash
+   sudo apt-get install build-essential
+   sudo apt-get install cmake
+   ```
+
 
 ### OpenFHE Library
 
@@ -74,6 +85,20 @@ To ensure compatibility, we recommend using version **1.1.2** of the OpenFHE lib
 
    ```bash
    cd ../..
+   ```
+
+If you do not have sudo access in your machine, specify a different installation path by
+
+   ```bash
+   cmake -DCMAKE_INSTALL_PREFIX=~/openfhe ..
+   make -j
+   make install
+   cd ../..
+   echo 'export LD_LIBRARY_PATH=~/openfhe/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+   echo 'export LIBRARY_PATH=~/openfhe/lib:$LIBRARY_PATH' >> ~/.bashrc
+   echo 'export CMAKE_PREFIX_PATH=~/openfhe:$CMAKE_PREFIX_PATH' >> ~/.bashrc
+   echo 'export CPATH=~/openfhe/include:$CPATH' >> ~/.bashrc
+   source ~/.bashrc
    ```
 
 For additional support or troubleshooting, refer to the official [OpenFHE Documentation](https://openfhe-development.readthedocs.io/en/latest/).
